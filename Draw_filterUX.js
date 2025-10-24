@@ -1,97 +1,101 @@
-// ----=  HANDS  =----
-let halo;
-let rightHorn;
-let leftHorn;
+let showGlasses = true;
+let showScar = true;
+let showTie = true;
+let showHat = false;
+let showBeard = false;
 
-let angel = true;
+let glassesImg;
+let scar;
+let tie;
+let hat;
+let beard;
 
 function prepareInteraction() {
-  halo = loadImage('/images/Gemini_halo.png');
-  rightHorn = loadImage('/images/Gemini_horn1.png');
-  leftHorn = loadImage('/images/Gemini_horn2.png');
+  glassesImg = loadImage('/images/glasses2.webp');
+  scar = loadImage('/images/scar.png');
+  tie = loadImage('/images/tie.png');
+  hat = loadImage('/images/hat.png');
+  beard = loadImage('/images/beard.png');
 }
 
 function drawInteraction(faces, hands) {
-
-  // hands part
-  // USING THE GESTURE DETECTORS (check their values in the debug menu)
-  // detectHandGesture(hand) returns "Pinch", "Peace", "Thumbs Up", "Pointing", "Open Palm", or "Fist"
-
-  // for loop to capture if there is more than one hand on the screen. This applies the same process to all hands.
   for (let i = 0; i < hands.length; i++) {
     let hand = hands[i];
-    if (showKeypoints) {
-      drawPoints(hand)
-      drawConnections(hand)
-    }
-    // console.log(hand);
-    /*
-    Start drawing on the hands here
-    */
+    let whatGesture = detectHandGesture(hand);
 
-    let whatGesture = detectHandGesture(hand)
+    // Thumbs Up = Harry Potter
     if (whatGesture == "Thumbs Up") {
-      angel = true;
-    }
-    if (whatGesture == "Open Palm") {
-      angel = false;
+      showGlasses = true;
+      showScar = true;
+      showTie = true;
+
+      showHat = false;
+      showBeard = false;
     }
 
-    /*
-    Stop drawing on the hands here
-    */
+    // Open Palm = Dumbledore
+    if (whatGesture == "Open Palm") {
+      showGlasses = false;
+      showScar = false;
+      showTie = false;
+
+      showHat = true;
+      showBeard = true;
+    }
   }
 
-  //------------------------------------------------------------
-  //facePart
-  // for loop to capture if there is more than one face on the screen. This applies the same process to all faces. 
   for (let i = 0; i < faces.length; i++) {
-    let face = faces[i]; // face holds all the keypoints of the face
-    if (showKeypoints) {
-      drawPoints(face)
-    }
-    // console.log(face);
-    /*
-    Once this program has a face, it knows some things about it.
-    This includes how to draw a box around the face, and an oval. 
-    It also knows where the key points of the following parts are:
-     face.leftEye
-     face.leftEyebrow
-     face.lips
-     face.rightEye
-     face.rightEyebrow
-    */
-    /*
-    Start drawing on the face here
-    */
+    let face = faces[i];
 
     let faceWidth = face.faceOval.width;
-    let faceheight = face.faceOval.height;
+    let faceHeight = face.faceOval.height;
     let faceCenterX = face.faceOval.centerX;
     let faceCenterY = face.faceOval.centerY;
 
-
-    let hornWidth = faceWidth / 3;
-    let hornHeight = faceheight;
-
-    let hornXOffset = faceWidth * 0.6;
-    let hornYOffset = faceheight * 1.5;
-
-    if (angel) {
-      image(halo, face.keypoints[103].x, face.keypoints[103].y - 200)
-    } else {
-      image(rightHorn, faceCenterX - hornXOffset, faceCenterY - hornYOffset, hornWidth, hornHeight) // imageName, x, y, imageWidth, imageHight
-      image(leftHorn, faceCenterX + hornXOffset - leftHorn.width, faceCenterY - hornYOffset, hornWidth, hornHeight) // imageName, x, y, imageWidth, imageHight
-
+    // Harry Potter 
+    if (showGlasses) {
+      let glassesWidth = faceWidth * 1.2;
+      let glassesHeight = (glassesWidth / glassesImg.width) * glassesImg.height;
+      let glassesX = faceCenterX - glassesWidth / 2;
+      let glassesY = faceCenterY - glassesHeight / 1.5;
+      image(glassesImg, glassesX, glassesY, glassesWidth, glassesHeight);
     }
-    /*
-    Stop drawing on the face here
-    */
 
+    if (showScar) {
+      let scarWidth = faceWidth / 4;
+      let scarHeight = (scarWidth / scar.width) * scar.height;
+      let scarX = face.keypoints[151].x - scarWidth / 2;
+      let scarY = face.keypoints[151].y - scarHeight / 2;
+      image(scar, scarX, scarY, scarWidth, scarHeight);
+    }
+
+    if (showTie) {
+      let tieWidth = faceWidth / 0.3;
+      let tieHeight = (tieWidth / tie.width) * tie.height;
+      let tieX = faceCenterX - tieWidth / 2;
+      let tieY = face.keypoints[152].y + faceHeight / 50;
+      image(tie, tieX, tieY, tieWidth, tieHeight);
+    }
+
+    // Dumbledore
+    if (showHat) {
+      let hatWidth = faceWidth * 2.5;
+      let hatHeight = (hatWidth / hat.width) * hat.height;
+      let hatX = faceCenterX - hatWidth / 2;
+      let hatY = faceCenterY - faceHeight / 0.37;
+      image(hat, hatX, hatY, hatWidth, hatHeight);
+    }
+
+    if (showBeard) {
+      let beardWidth = faceWidth * 2.5;
+      let beardHeight = (beardWidth / beard.width) * beard.height;
+      let beardX = faceCenterX - beardWidth / 2;
+      let beardY = face.keypoints[152].y - beardHeight / 5;
+      image(beard, beardX, beardY, beardWidth, beardHeight);
+    }
   }
-  //------------------------------------------------------
-  // You can make addtional elements here, but keep the face drawing inside the for loop. 
 }
+
 
 
 function drawConnections(hand) {
